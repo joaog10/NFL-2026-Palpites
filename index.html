@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bolão NFL 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --arquibancada:#1B2733;
+    --bancada:#24333F;
+    --linha:#3A4C5A;
+    --giz:#F1F4F6;
+    --giz-fraco:#93A6B4;
+    --bandeira:#F5C518;
+    --acerto:#4CAF6D;
+    --erro:#D8544C;
+    --raio:3px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--arquibancada);
+    color:var(--giz);
+    font-family:'Barlow',system-ui,sans-serif;
+    font-size:16px;
+    line-height:1.45;
+    -webkit-font-smoothing:antialiased;
+  }
+  .folha{max-width:620px;margin:0 auto;padding:20px 16px 64px}
+
+  header{
+    display:flex;align-items:baseline;justify-content:space-between;
+    gap:12px;padding-bottom:14px;border-bottom:2px solid var(--bandeira);
+  }
+  h1{
+    font-family:'Barlow Condensed',sans-serif;
+    font-weight:700;font-size:30px;line-height:1;letter-spacing:.01em;margin:0;white-space:nowrap;
+  }
+  h1 span{display:block;font-size:13px;font-weight:500;color:var(--giz-fraco);letter-spacing:.06em}
+  .marca{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:700;text-align:right;line-height:1.05;white-space:nowrap}
+  .marca small{display:block;font-family:'Barlow',sans-serif;font-size:12px;font-weight:500;color:var(--giz-fraco)}
+
+  .semanas{
+    display:flex;gap:6px;overflow-x:auto;padding:14px 0 12px;
+    scrollbar-width:thin;-webkit-overflow-scrolling:touch;
+  }
+  .semanas button{
+    flex:0 0 auto;min-width:38px;padding:7px 9px;
+    background:transparent;color:var(--giz-fraco);
+    border:1px solid var(--linha);border-radius:var(--raio);
+    font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:600;
+    cursor:pointer;
+  }
+  .semanas button[aria-current="true"]{background:var(--bandeira);color:#1B2733;border-color:var(--bandeira)}
+  .semanas button:focus-visible,.lado:focus-visible,.acao:focus-visible{outline:2px solid var(--bandeira);outline-offset:2px}
+
+  .tira{
+    display:flex;flex-wrap:wrap;gap:6px 18px;align-items:baseline;
+    padding:10px 0 16px;border-bottom:1px solid var(--linha);
+    font-size:13px;color:var(--giz-fraco);
+  }
+  .tira b{font-family:'Barlow Condensed',sans-serif;font-size:17px;color:var(--giz);font-weight:600}
+
+  .jogo{padding:16px 0;border-bottom:1px solid var(--linha)}
+  .quando{
+    display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+    font-size:12px;color:var(--giz-fraco);margin-bottom:7px;
+  }
+  .quando em{font-style:normal;color:var(--bandeira)}
+  .duelo{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .lado{
+    position:relative;text-align:left;padding:11px 12px 10px;
+    background:transparent;border:1px solid var(--linha);border-radius:var(--raio);
+    color:var(--giz);font-family:inherit;cursor:pointer;
+    transition:background-color .12s ease,border-color .12s ease;
+  }
+  .lado .cidade{display:block;font-size:11px;color:var(--giz-fraco);letter-spacing:.04em}
+  .lado .nome{
+    display:block;font-family:'Barlow Condensed',sans-serif;
+    font-size:21px;font-weight:600;line-height:1.1;
+  }
+  .lado .papel{display:block;font-size:11px;color:var(--giz-fraco);margin-top:2px}
+  .lado[aria-pressed="true"]{border-color:transparent}
+  .lado[aria-pressed="true"] .cidade,.lado[aria-pressed="true"] .papel{color:inherit;opacity:.75}
+  .lado.venceu::after{
+    content:"";position:absolute;left:0;right:0;bottom:-1px;height:3px;background:var(--bandeira);
+  }
+  .lado:disabled{cursor:default}
+
+  .fecho{display:flex;gap:10px;align-items:baseline;margin-top:9px;font-size:13px}
+  .placar{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:600}
+  .veredito{font-weight:600}
+  .veredito.ok{color:var(--acerto)}
+  .veredito.nao{color:var(--erro)}
+  .veredito.neutro{color:var(--giz-fraco)}
+
+  .rodape{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-top:18px;font-size:12px;color:var(--giz-fraco)}
+  .acao{
+    background:transparent;border:1px solid var(--linha);border-radius:var(--raio);
+    color:var(--giz);padding:7px 13px;font-family:inherit;font-size:13px;cursor:pointer;
+  }
+  .acao:hover{border-color:var(--bandeira)}
+  .aviso{padding:22px 0;color:var(--giz-fraco)}
+  .aviso b{color:var(--giz);display:block;font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:600;margin-bottom:4px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+  @media (max-width:400px){
+    .lado .nome{font-size:19px}
+    h1{font-size:26px}
+  }
+</style>
+</head>
+<body>
+<div class="folha">
+  <header>
+    <h1>Bolão NFL<span>Temporada 2026</span></h1>
+    <div class="marca" id="marca"><small>carregando</small></div>
+  </header>
+
+  <nav class="semanas" id="semanas" aria-label="Rodadas"></nav>
+  <div class="tira" id="tira" hidden></div>
+  <main id="lista"><p class="aviso">Buscando a tabela de jogos…</p></main>
+
+  <div class="rodape">
+    <span id="atualizado">—</span>
+    <button class="acao" id="recarregar">Atualizar resultados</button>
+  </div>
+  <p class="rodape" style="border:0;padding-top:6px">Seus palpites ficam salvos neste navegador.</p>
+</div>
+
+<script>
+const FONTE = 'https://raw.githubusercontent.com/nflverse/nfldata/master/data/games.csv';
+const CHAVE = 'bolao-nfl-2026';
+
+// Cores primárias de cada franquia: são elas que dão identidade ao palpite escolhido.
+const CORES = {
+  ARI:'#97233F', ATL:'#A71930', BAL:'#241773', BUF:'#00338D', CAR:'#0085CA',
+  CHI:'#0B162A', CIN:'#FB4F14', CLE:'#311D00', DAL:'#041E42', DEN:'#FB4F14',
+  DET:'#0076B6', GB:'#203731', HOU:'#03202F', IND:'#002C5F', JAX:'#006778',
+  KC:'#E31837', LA:'#003594', LAC:'#0080C6', LV:'#111111', MIA:'#008E97',
+  MIN:'#4F2683', NE:'#002244', NO:'#D3BC8D', NYG:'#0B2265', NYJ:'#125740',
+  PHI:'#004C54', PIT:'#FFB612', SEA:'#69BE28', SF:'#AA0000', TB:'#D50A0A',
+  TEN:'#4B92DB', WAS:'#5A1414'
+};
+const TIMES = {
+  ARI:['Arizona','Cardinals'], ATL:['Atlanta','Falcons'], BAL:['Baltimore','Ravens'],
+  BUF:['Buffalo','Bills'], CAR:['Carolina','Panthers'], CHI:['Chicago','Bears'],
+  CIN:['Cincinnati','Bengals'], CLE:['Cleveland','Browns'], DAL:['Dallas','Cowboys'],
+  DEN:['Denver','Broncos'], DET:['Detroit','Lions'], GB:['Green Bay','Packers'],
+  HOU:['Houston','Texans'], IND:['Indianapolis','Colts'], JAX:['Jacksonville','Jaguars'],
+  KC:['Kansas City','Chiefs'], LA:['Los Angeles','Rams'], LAC:['Los Angeles','Chargers'],
+  LV:['Las Vegas','Raiders'], MIA:['Miami','Dolphins'], MIN:['Minnesota','Vikings'],
+  NE:['New England','Patriots'], NO:['New Orleans','Saints'], NYG:['New York','Giants'],
+  NYJ:['New York','Jets'], PHI:['Philadelphia','Eagles'], PIT:['Pittsburgh','Steelers'],
+  SEA:['Seattle','Seahawks'], SF:['San Francisco','49ers'], TB:['Tampa Bay','Buccaneers'],
+  TEN:['Tennessee','Titans'], WAS:['Washington','Commanders']
+};
+
+// Guarda os palpites: usa window.storage quando existe (pré-visualização do Claude)
+// e localStorage no navegador comum, que é onde o site vai rodar de verdade.
+const cofre = {
+  async ler(){
+    try{ if(window.storage){ const r = await window.storage.get(CHAVE); if(r && r.value) return JSON.parse(r.value); } }catch(e){}
+    try{ const t = localStorage.getItem(CHAVE); return t ? JSON.parse(t) : {}; }catch(e){ return {}; }
+  },
+  async gravar(obj){
+    const t = JSON.stringify(obj);
+    try{ if(window.storage){ await window.storage.set(CHAVE, t); return; } }catch(e){}
+    try{ localStorage.setItem(CHAVE, t); }catch(e){}
+  }
+};
+
+let jogos = [], palpites = {}, semanaAtiva = 0, extras = '';
+
+function separaLinha(linha){
+  const campos = []; let atual = '', aspas = false;
+  for(let i=0;i<linha.length;i++){
+    const c = linha[i];
+    if(c === '"'){ if(aspas && linha[i+1] === '"'){ atual += '"'; i++; } else aspas = !aspas; }
+    else if(c === ',' && !aspas){ campos.push(atual); atual = ''; }
+    else atual += c;
+  }
+  campos.push(atual);
+  return campos;
+}
+
+function leCsv(texto){
+  const linhas = texto.split('\n');
+  const cab = separaLinha(linhas[0]);
+  const idx = {};
+  ['game_id','season','game_type','week','gameday','gametime','away_team','home_team',
+   'away_score','home_score','location','stadium'].forEach(n => idx[n] = cab.indexOf(n));
+  const saida = [];
+  for(let i=1;i<linhas.length;i++){
+    if(!linhas[i]) continue;
+    const c = separaLinha(linhas[i]);
+    if(c[idx.season] !== '2026' || c[idx.game_type] !== 'REG') continue;
+    saida.push({
+      id: c[idx.game_id],
+      semana: parseInt(c[idx.week], 10),
+      dia: c[idx.gameday],
+      hora: c[idx.gametime],
+      fora: c[idx.away_team],
+      casa: c[idx.home_team],
+      ptsFora: c[idx.away_score] === '' ? null : Number(c[idx.away_score]),
+      ptsCasa: c[idx.home_score] === '' ? null : Number(c[idx.home_score]),
+      neutro: c[idx.location] === 'Neutral',
+      estadio: c[idx.stadium]
+    });
+  }
+  saida.sort((a,b) => a.semana - b.semana || (a.dia + a.hora).localeCompare(b.dia + b.hora));
+  return saida;
+}
+
+// O CSV traz o horário do leste dos EUA. O horário de verão de lá acaba em 01/11/2026,
+// então antes disso o fuso é -04:00 e depois -05:00. O navegador faz o resto.
+function quando(jogo){
+  if(!jogo.dia || !jogo.hora) return null;
+  const fuso = jogo.dia < '2026-11-01' ? '-04:00' : '-05:00';
+  const d = new Date(jogo.dia + 'T' + jogo.hora + ':00' + fuso);
+  return isNaN(d) ? null : d;
+}
+
+function rotuloData(jogo){
+  const d = quando(jogo);
+  if(!d) return 'data a definir';
+  const dia = d.toLocaleDateString('pt-BR', {weekday:'short', day:'2-digit', month:'2-digit', timeZone:'America/Sao_Paulo'});
+  const hora = d.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit', timeZone:'America/Sao_Paulo'});
+  return dia.replace('.','') + ' · ' + hora;
+}
+
+// 1 = vitória do mandante, 2 = vitória do visitante. Igual ao código da planilha.
+function vencedor(jogo){
+  if(jogo.ptsFora === null || jogo.ptsCasa === null) return null;
+  if(jogo.ptsCasa === jogo.ptsFora) return 0;
+  return jogo.ptsCasa > jogo.ptsFora ? 1 : 2;
+}
+
+function luz(hex){
+  const n = parseInt(hex.slice(1), 16);
+  const [r,g,b] = [(n>>16)&255, (n>>8)&255, n&255].map(v => {
+    v /= 255; return v <= .03928 ? v/12.92 : Math.pow((v+.055)/1.055, 2.4);
+  });
+  return .2126*r + .7152*g + .0722*b;
+}
+
+// Times de cor quase preta sumiriam no fundo da página. Em vez de desbotar a cor,
+// a borda usa um tom clareado dela: a identidade fica, o contorno aparece.
+function clareia(hex, grau){
+  const n = parseInt(hex.slice(1), 16);
+  const m = c => Math.round(c + (255 - c) * grau);
+  return '#' + [m((n>>16)&255), m((n>>8)&255), m(n&255)]
+    .map(c => c.toString(16).padStart(2,'0')).join('');
+}
+
+// Escolhe entre texto claro e escuro pelo contraste real, não pelo chute.
+function textoSobre(hex){
+  const L = luz(hex);
+  const comClaro = 1.05 / (L + .05);
+  const comEscuro = (L + .05) / .067;
+  return comEscuro > comClaro ? '#14202A' : '#FFFFFF';
+}
+
+function semanaCorrente(){
+  const agora = Date.now();
+  const futuros = jogos.filter(j => { const d = quando(j); return d && d.getTime() + 4*3600e3 > agora; });
+  return futuros.length ? futuros[0].semana : 18;
+}
+
+function montaSemanas(){
+  const nav = document.getElementById('semanas');
+  nav.innerHTML = '';
+  for(let s = 1; s <= 18; s++){
+    const b = document.createElement('button');
+    b.textContent = s;
+    b.setAttribute('aria-current', s === semanaAtiva ? 'true' : 'false');
+    b.setAttribute('aria-label', 'Semana ' + s);
+    b.onclick = () => { semanaAtiva = s; montaSemanas(); montaLista(); };
+    nav.appendChild(b);
+  }
+}
+
+function montaTira(){
+  const tira = document.getElementById('tira');
+  const daSemana = jogos.filter(j => j.semana === semanaAtiva);
+  const feitos = daSemana.filter(j => palpites[j.id]).length;
+  let acertos = 0, erros = 0;
+  daSemana.forEach(j => {
+    const v = vencedor(j), p = palpites[j.id];
+    if(!p || v === null || v === 0) return;
+    if(p === v) acertos++; else erros++;
+  });
+  tira.hidden = false;
+  tira.innerHTML = '<span>Semana ' + semanaAtiva + ' · <b>' + feitos + '</b> de ' + daSemana.length + ' palpites' +
+    (acertos + erros ? ' · <b>' + acertos + '</b> acerto' + (acertos === 1 ? '' : 's') +
+      ' e <b>' + erros + '</b> erro' + (erros === 1 ? '' : 's') : '') + '</span>' +
+    (extras ? '<span>' + extras + '</span>' : '');
+}
+
+function montaMarca(){
+  let acertos = 0, erros = 0, mandante = 0, seq = 0;
+  jogos.forEach(j => {
+    const v = vencedor(j), p = palpites[j.id];
+    if(!p || v === null || v === 0) return;
+    if(v === 1) mandante++;
+    if(p === v){ acertos++; seq++; } else { erros++; seq = 0; }
+  });
+  const total = acertos + erros;
+  const alvo = document.getElementById('marca');
+  if(!total){
+    alvo.innerHTML = '<small>nenhum jogo decidido ainda</small>';
+    return;
+  }
+  const pct = (acertos / total * 100).toFixed(1).replace('.', ',');
+  alvo.innerHTML = acertos + '<small>de ' + total + ' · ' + pct + '%</small>';
+  const pctCasa = (mandante / total * 100).toFixed(1).replace('.', ',');
+  extras = 'Sempre no mandante daria <b>' + pctCasa + '%</b>' +
+           (seq > 1 ? ' · <b>' + seq + '</b> acertos seguidos' : '');
+}
+
+function pinta(botao, sigla, escolhido){
+  if(escolhido){
+    const cor = CORES[sigla] || '#3A4C5A';
+    botao.style.background = cor;
+    botao.style.color = textoSobre(cor);
+    botao.style.boxShadow = 'inset 0 0 0 2px ' + clareia(cor, luz(cor) < .045 ? .45 : .25);
+  }else{
+    botao.style.background = 'transparent';
+    botao.style.color = '';
+    botao.style.boxShadow = '';
+  }
+}
+
+function ladoDoJogo(jogo, codigo){
+  const sigla = codigo === 1 ? jogo.casa : jogo.fora;
+  const [cidade, nome] = TIMES[sigla] || ['', sigla];
+  const b = document.createElement('button');
+  b.className = 'lado';
+  b.type = 'button';
+  const escolhido = palpites[jogo.id] === codigo;
+  const papel = codigo === 1 ? 'casa' : 'visitante';
+  b.innerHTML = '<span class="cidade">' + cidade + '</span><span class="nome">' + nome +
+                '</span><span class="papel">' + (escolhido ? 'seu palpite' : papel) + '</span>';
+  b.setAttribute('aria-label', nome + ', ' + papel);
+  b.setAttribute('aria-pressed', escolhido ? 'true' : 'false');
+  pinta(b, sigla, escolhido);
+  if(vencedor(jogo) === codigo) b.classList.add('venceu');
+  b.onclick = async () => {
+    if(palpites[jogo.id] === codigo) delete palpites[jogo.id];
+    else palpites[jogo.id] = codigo;
+    await cofre.gravar(palpites);
+    montaMarca(); montaTira(); montaLista();
+  };
+  return b;
+}
+
+function montaLista(){
+  const alvo = document.getElementById('lista');
+  const daSemana = jogos.filter(j => j.semana === semanaAtiva);
+  alvo.innerHTML = '';
+  if(!daSemana.length){
+    alvo.innerHTML = '<p class="aviso"><b>Sem jogos nesta rodada</b>A tabela ainda não trouxe os confrontos.</p>';
+    return;
+  }
+  daSemana.forEach(jogo => {
+    const art = document.createElement('article');
+    art.className = 'jogo';
+
+    const topo = document.createElement('div');
+    topo.className = 'quando';
+    const sede = jogo.neutro ? '<em>' + jogo.estadio + '</em>' : '';
+    topo.innerHTML = '<span>' + rotuloData(jogo) + '</span>' + sede;
+    art.appendChild(topo);
+
+    const duelo = document.createElement('div');
+    duelo.className = 'duelo';
+    duelo.appendChild(ladoDoJogo(jogo, 2));
+    duelo.appendChild(ladoDoJogo(jogo, 1));
+    art.appendChild(duelo);
+
+    const v = vencedor(jogo), p = palpites[jogo.id];
+    if(v !== null){
+      const fecho = document.createElement('div');
+      fecho.className = 'fecho';
+      let veredito = '<span class="veredito neutro">sem palpite</span>';
+      if(v === 0) veredito = '<span class="veredito neutro">empate, ninguém pontua</span>';
+      else if(p === v) veredito = '<span class="veredito ok">você acertou</span>';
+      else if(p) veredito = '<span class="veredito nao">você errou</span>';
+      fecho.innerHTML = '<span class="placar">' + jogo.ptsFora + ' – ' + jogo.ptsCasa + '</span>' + veredito;
+      art.appendChild(fecho);
+    }
+    alvo.appendChild(art);
+  });
+}
+
+async function carregar(){
+  const alvo = document.getElementById('lista');
+  try{
+    const r = await fetch(FONTE + '?t=' + Date.now());
+    if(!r.ok) throw new Error(r.status);
+    jogos = leCsv(await r.text());
+    if(!jogos.length) throw new Error('tabela vazia');
+    palpites = await cofre.ler() || {};
+    if(!semanaAtiva) semanaAtiva = semanaCorrente();
+    montaSemanas(); montaMarca(); montaTira(); montaLista();
+    document.getElementById('atualizado').textContent =
+      'Tabela lida às ' + new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+  }catch(e){
+    alvo.innerHTML = '<p class="aviso"><b>Não deu para ler a tabela</b>' +
+      'A busca dos jogos falhou (' + e.message + '). Se você abriu esta página dentro de outro aplicativo, ' +
+      'salve o arquivo e abra direto no navegador — a conexão externa costuma ser bloqueada em pré-visualizações.</p>';
+    document.getElementById('atualizado').textContent = 'sem conexão com a fonte';
+  }
+}
+
+document.getElementById('recarregar').onclick = carregar;
+carregar();
+</script>
+</body>
+</html>
