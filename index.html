@@ -22,73 +22,53 @@
   *{box-sizing:border-box}
   html,body{margin:0;padding:0}
   body{
-    background:var(--arquibancada);
-    color:var(--giz);
-    font-family:'Barlow',system-ui,sans-serif;
-    font-size:16px;
-    line-height:1.45;
+    background:var(--arquibancada);color:var(--giz);
+    font-family:'Barlow',system-ui,sans-serif;font-size:16px;line-height:1.45;
     -webkit-font-smoothing:antialiased;
   }
-  .folha{max-width:620px;margin:0 auto;padding:20px 16px 64px}
+  .folha{max-width:640px;margin:0 auto;padding:20px 16px 60px}
 
-  header{
-    display:flex;align-items:baseline;justify-content:space-between;
-    gap:12px;padding-bottom:14px;border-bottom:2px solid var(--bandeira);
-  }
-  h1{
-    font-family:'Barlow Condensed',sans-serif;
-    font-weight:700;font-size:30px;line-height:1;letter-spacing:.01em;margin:0;white-space:nowrap;
-  }
+  header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding-bottom:14px;border-bottom:2px solid var(--bandeira)}
+  h1{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:30px;line-height:1;margin:0;white-space:nowrap}
   h1 span{display:block;font-size:13px;font-weight:500;color:var(--giz-fraco);letter-spacing:.06em}
   .marca{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:700;text-align:right;line-height:1.05;white-space:nowrap}
   .marca small{display:block;font-family:'Barlow',sans-serif;font-size:12px;font-weight:500;color:var(--giz-fraco)}
 
-  .semanas{
-    display:flex;gap:6px;overflow-x:auto;padding:14px 0 12px;
-    scrollbar-width:thin;-webkit-overflow-scrolling:touch;
-  }
-  .semanas button{
-    flex:0 0 auto;min-width:38px;padding:7px 9px;
-    background:transparent;color:var(--giz-fraco);
+  .visoes{display:flex;gap:4px;margin:16px 0 2px}
+  .visoes button{
+    flex:1;padding:9px 6px;background:transparent;color:var(--giz-fraco);
     border:1px solid var(--linha);border-radius:var(--raio);
-    font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:600;
-    cursor:pointer;
+    font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:600;cursor:pointer;
+  }
+  .visoes button[aria-selected="true"]{background:var(--bancada);color:var(--giz);border-color:var(--giz-fraco)}
+
+  .semanas{display:flex;gap:6px;overflow-x:auto;padding:14px 0 12px;scrollbar-width:thin}
+  .semanas button{
+    flex:0 0 auto;min-width:38px;padding:7px 9px;background:transparent;color:var(--giz-fraco);
+    border:1px solid var(--linha);border-radius:var(--raio);
+    font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:600;cursor:pointer;
   }
   .semanas button[aria-current="true"]{background:var(--bandeira);color:#1B2733;border-color:var(--bandeira)}
-  .semanas button:focus-visible,.lado:focus-visible,.acao:focus-visible{outline:2px solid var(--bandeira);outline-offset:2px}
+  button:focus-visible,input:focus-visible,th:focus-visible{outline:2px solid var(--bandeira);outline-offset:2px}
 
-  .tira{
-    display:flex;flex-wrap:wrap;gap:6px 18px;align-items:baseline;
-    padding:10px 0 16px;border-bottom:1px solid var(--linha);
-    font-size:13px;color:var(--giz-fraco);
-  }
+  .tira{display:flex;flex-wrap:wrap;gap:4px 18px;align-items:baseline;padding:10px 0 16px;border-bottom:1px solid var(--linha);font-size:13px;color:var(--giz-fraco)}
   .tira b{font-family:'Barlow Condensed',sans-serif;font-size:17px;color:var(--giz);font-weight:600}
 
   .jogo{padding:16px 0;border-bottom:1px solid var(--linha)}
-  .quando{
-    display:flex;justify-content:space-between;align-items:baseline;gap:10px;
-    font-size:12px;color:var(--giz-fraco);margin-bottom:7px;
-  }
+  .quando{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12px;color:var(--giz-fraco);margin-bottom:7px}
   .quando em{font-style:normal;color:var(--bandeira)}
   .duelo{display:grid;grid-template-columns:1fr 1fr;gap:6px}
   .lado{
-    position:relative;text-align:left;padding:11px 12px 10px;
-    background:transparent;border:1px solid var(--linha);border-radius:var(--raio);
-    color:var(--giz);font-family:inherit;cursor:pointer;
-    transition:background-color .12s ease,border-color .12s ease;
+    position:relative;text-align:left;padding:11px 12px 10px;background:transparent;
+    border:1px solid var(--linha);border-radius:var(--raio);color:var(--giz);
+    font-family:inherit;cursor:pointer;transition:background-color .12s ease;
   }
   .lado .cidade{display:block;font-size:11px;color:var(--giz-fraco);letter-spacing:.04em}
-  .lado .nome{
-    display:block;font-family:'Barlow Condensed',sans-serif;
-    font-size:21px;font-weight:600;line-height:1.1;
-  }
+  .lado .nome{display:block;font-family:'Barlow Condensed',sans-serif;font-size:21px;font-weight:600;line-height:1.1}
   .lado .papel{display:block;font-size:11px;color:var(--giz-fraco);margin-top:2px}
   .lado[aria-pressed="true"]{border-color:transparent}
   .lado[aria-pressed="true"] .cidade,.lado[aria-pressed="true"] .papel{color:inherit;opacity:.75}
-  .lado.venceu::after{
-    content:"";position:absolute;left:0;right:0;bottom:-1px;height:3px;background:var(--bandeira);
-  }
-  .lado:disabled{cursor:default}
+  .lado.venceu::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:3px;background:var(--bandeira)}
 
   .fecho{display:flex;gap:10px;align-items:baseline;margin-top:9px;font-size:13px}
   .placar{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:600}
@@ -97,19 +77,39 @@
   .veredito.nao{color:var(--erro)}
   .veredito.neutro{color:var(--giz-fraco)}
 
-  .rodape{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-top:18px;font-size:12px;color:var(--giz-fraco)}
-  .acao{
-    background:transparent;border:1px solid var(--linha);border-radius:var(--raio);
-    color:var(--giz);padding:7px 13px;font-family:inherit;font-size:13px;cursor:pointer;
+  .cartoes{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:18px 0}
+  .cartao{background:var(--bancada);border-radius:var(--raio);padding:12px 13px}
+  .cartao b{display:block;font-family:'Barlow Condensed',sans-serif;font-size:27px;font-weight:700;line-height:1.1}
+  .cartao span{font-size:12px;color:var(--giz-fraco)}
+  .cartao.destaque b{color:var(--bandeira)}
+
+  h2{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:600;margin:26px 0 4px}
+  .nota{font-size:12px;color:var(--giz-fraco);margin:0 0 12px}
+
+  .barra{display:grid;grid-template-columns:1fr 46px;gap:10px;align-items:center;margin-bottom:9px}
+  .barra .rotulo{font-size:13px}
+  .barra .trilho{height:7px;background:var(--bancada);border-radius:4px;overflow:hidden;margin-top:4px}
+  .barra .cheio{height:100%;background:var(--acerto)}
+  .barra .valor{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:600;text-align:right}
+  .barra small{color:var(--giz-fraco);font-size:11px}
+
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{padding:7px 4px;border-bottom:1px solid var(--linha);text-align:right}
+  th:first-child,td:first-child{text-align:left}
+  th{
+    font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:600;
+    color:var(--giz-fraco);cursor:pointer;user-select:none;
   }
+  th[aria-sort]{color:var(--bandeira)}
+  .naipe{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:7px;vertical-align:baseline}
+
+  .rodape{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:center;padding-top:20px;font-size:12px;color:var(--giz-fraco)}
+  .acao{background:transparent;border:1px solid var(--linha);border-radius:var(--raio);color:var(--giz);padding:7px 13px;font-family:inherit;font-size:13px;cursor:pointer}
   .acao:hover{border-color:var(--bandeira)}
   .aviso{padding:22px 0;color:var(--giz-fraco)}
   .aviso b{color:var(--giz);display:block;font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:600;margin-bottom:4px}
   @media (prefers-reduced-motion:reduce){*{transition:none!important}}
-  @media (max-width:400px){
-    .lado .nome{font-size:19px}
-    h1{font-size:26px}
-  }
+  @media (max-width:400px){.lado .nome{font-size:19px}h1{font-size:26px}}
 </style>
 </head>
 <body>
@@ -119,22 +119,45 @@
     <div class="marca" id="marca"><small>carregando</small></div>
   </header>
 
+  <div class="visoes" role="tablist">
+    <button role="tab" id="aba-rodadas" aria-selected="true">Rodadas</button>
+    <button role="tab" id="aba-temporada" aria-selected="false">Temporada</button>
+    <button role="tab" id="aba-times" aria-selected="false">Times</button>
+  </div>
+
   <nav class="semanas" id="semanas" aria-label="Rodadas"></nav>
   <div class="tira" id="tira" hidden></div>
-  <main id="lista"><p class="aviso">Buscando a tabela de jogos…</p></main>
+  <main id="palco"><p class="aviso">Buscando a tabela de jogos…</p></main>
 
   <div class="rodape">
     <span id="atualizado">—</span>
-    <button class="acao" id="recarregar">Atualizar resultados</button>
+    <span>
+      <button class="acao" id="recarregar">Atualizar resultados</button>
+      <button class="acao" id="exportar">Salvar palpites</button>
+      <button class="acao" id="importar">Restaurar</button>
+    </span>
   </div>
-  <p class="rodape" style="border:0;padding-top:6px">Seus palpites ficam salvos neste navegador.</p>
+  <input type="file" id="arquivo" accept="application/json" hidden>
+  <p class="rodape" style="padding-top:6px">Os palpites ficam neste navegador. Salve uma cópia de vez em quando.</p>
 </div>
 
 <script>
+// ---------------------------------------------------------------------------
+// Camada de dados. Trocar de fonte é mexer só aqui: buscarJogos() precisa
+// devolver a lista de jogos no formato abaixo, venha ela de onde vier.
+// ---------------------------------------------------------------------------
 const FONTE = 'https://raw.githubusercontent.com/nflverse/nfldata/master/data/games.csv';
+
+async function buscarJogos(){
+  const r = await fetch(FONTE + '?t=' + Date.now());
+  if(!r.ok) throw new Error('a fonte respondeu ' + r.status);
+  const lista = leCsv(await r.text());
+  if(!lista.length) throw new Error('nenhum jogo de 2026 na resposta');
+  return lista;
+}
+
 const CHAVE = 'bolao-nfl-2026';
 
-// Cores primárias de cada franquia: são elas que dão identidade ao palpite escolhido.
 const CORES = {
   ARI:'#97233F', ATL:'#A71930', BAL:'#241773', BUF:'#00338D', CAR:'#0085CA',
   CHI:'#0B162A', CIN:'#FB4F14', CLE:'#311D00', DAL:'#041E42', DEN:'#FB4F14',
@@ -157,9 +180,8 @@ const TIMES = {
   SEA:['Seattle','Seahawks'], SF:['San Francisco','49ers'], TB:['Tampa Bay','Buccaneers'],
   TEN:['Tennessee','Titans'], WAS:['Washington','Commanders']
 };
+const AFC = ['BAL','BUF','CIN','CLE','DEN','HOU','IND','JAX','KC','LAC','LV','MIA','NE','NYJ','PIT','TEN'];
 
-// Guarda os palpites: usa window.storage quando existe (pré-visualização do Claude)
-// e localStorage no navegador comum, que é onde o site vai rodar de verdade.
 const cofre = {
   async ler(){
     try{ if(window.storage){ const r = await window.storage.get(CHAVE); if(r && r.value) return JSON.parse(r.value); } }catch(e){}
@@ -172,8 +194,10 @@ const cofre = {
   }
 };
 
-let jogos = [], palpites = {}, semanaAtiva = 0, extras = '';
+let jogos = [], palpites = {}, semanaAtiva = 0, visao = 'rodadas', extras = '';
+let ordemTimes = {coluna:'aproveitamento', desc:true};
 
+// ------------------------------- leitura -----------------------------------
 function separaLinha(linha){
   const campos = []; let atual = '', aspas = false;
   for(let i=0;i<linha.length;i++){
@@ -190,8 +214,8 @@ function leCsv(texto){
   const linhas = texto.split('\n');
   const cab = separaLinha(linhas[0]);
   const idx = {};
-  ['game_id','season','game_type','week','gameday','gametime','away_team','home_team',
-   'away_score','home_score','location','stadium'].forEach(n => idx[n] = cab.indexOf(n));
+  ['game_id','season','game_type','week','gameday','weekday','gametime','away_team','home_team',
+   'away_score','home_score','location','stadium','div_game'].forEach(n => idx[n] = cab.indexOf(n));
   const saida = [];
   for(let i=1;i<linhas.length;i++){
     if(!linhas[i]) continue;
@@ -201,21 +225,24 @@ function leCsv(texto){
       id: c[idx.game_id],
       semana: parseInt(c[idx.week], 10),
       dia: c[idx.gameday],
+      diaSemana: c[idx.weekday],
       hora: c[idx.gametime],
       fora: c[idx.away_team],
       casa: c[idx.home_team],
       ptsFora: c[idx.away_score] === '' ? null : Number(c[idx.away_score]),
       ptsCasa: c[idx.home_score] === '' ? null : Number(c[idx.home_score]),
       neutro: c[idx.location] === 'Neutral',
-      estadio: c[idx.stadium]
+      estadio: c[idx.stadium],
+      divisao: c[idx.div_game] === '1'
     });
   }
   saida.sort((a,b) => a.semana - b.semana || (a.dia + a.hora).localeCompare(b.dia + b.hora));
+  saida.forEach(j => { j.tipo = tipoDoJogo(j); j.confronto = confrontoDoJogo(j); });
   return saida;
 }
 
-// O CSV traz o horário do leste dos EUA. O horário de verão de lá acaba em 01/11/2026,
-// então antes disso o fuso é -04:00 e depois -05:00. O navegador faz o resto.
+// O CSV traz horário do leste dos EUA. Lá o horário de verão acaba em 01/11/2026:
+// antes o fuso é -04:00, depois -05:00. A conversão para Brasília é do navegador.
 function quando(jogo){
   if(!jogo.dia || !jogo.hora) return null;
   const fuso = jogo.dia < '2026-11-01' ? '-04:00' : '-05:00';
@@ -231,7 +258,20 @@ function rotuloData(jogo){
   return dia.replace('.','') + ' · ' + hora;
 }
 
-// 1 = vitória do mandante, 2 = vitória do visitante. Igual ao código da planilha.
+function tipoDoJogo(j){
+  const et = parseInt((j.hora || '13:00').split(':')[0], 10);
+  if(et >= 19) return 'Primetime';
+  if(j.diaSemana === 'Sunday' && et >= 12) return 'Domingo à tarde';
+  return 'Manhã e feriados';
+}
+
+function confrontoDoJogo(j){
+  const a = AFC.indexOf(j.fora) >= 0 ? 'AFC' : 'NFC';
+  const c = AFC.indexOf(j.casa) >= 0 ? 'AFC' : 'NFC';
+  return a === c ? a : 'Interconferência';
+}
+
+// 1 = venceu o mandante, 2 = venceu o visitante, 0 = empate, null = sem placar.
 function vencedor(jogo){
   if(jogo.ptsFora === null || jogo.ptsCasa === null) return null;
   if(jogo.ptsCasa === jogo.ptsFora) return 0;
@@ -245,92 +285,105 @@ function luz(hex){
   });
   return .2126*r + .7152*g + .0722*b;
 }
-
-// Times de cor quase preta sumiriam no fundo da página. Em vez de desbotar a cor,
-// a borda usa um tom clareado dela: a identidade fica, o contorno aparece.
 function clareia(hex, grau){
   const n = parseInt(hex.slice(1), 16);
   const m = c => Math.round(c + (255 - c) * grau);
-  return '#' + [m((n>>16)&255), m((n>>8)&255), m(n&255)]
-    .map(c => c.toString(16).padStart(2,'0')).join('');
+  return '#' + [m((n>>16)&255), m((n>>8)&255), m(n&255)].map(c => c.toString(16).padStart(2,'0')).join('');
 }
-
-// Escolhe entre texto claro e escuro pelo contraste real, não pelo chute.
 function textoSobre(hex){
   const L = luz(hex);
-  const comClaro = 1.05 / (L + .05);
-  const comEscuro = (L + .05) / .067;
-  return comEscuro > comClaro ? '#14202A' : '#FFFFFF';
+  return (L + .05) / .067 > 1.05 / (L + .05) ? '#14202A' : '#FFFFFF';
+}
+function pct(parte, todo){
+  return todo ? (parte / todo * 100).toFixed(1).replace('.', ',') + '%' : '—';
 }
 
-function semanaCorrente(){
-  const agora = Date.now();
-  const futuros = jogos.filter(j => { const d = quando(j); return d && d.getTime() + 4*3600e3 > agora; });
-  return futuros.length ? futuros[0].semana : 18;
+// ------------------------------- contas ------------------------------------
+// Só entra na conta o jogo que tem palpite e terminou sem empate.
+function decididos(){
+  return jogos.filter(j => {
+    const v = vencedor(j);
+    return palpites[j.id] && v !== null && v !== 0;
+  });
+}
+
+function balanco(lista){
+  let acertos = 0, erros = 0, mandante = 0;
+  lista.forEach(j => {
+    const v = vencedor(j);
+    if(v === 1) mandante++;
+    if(palpites[j.id] === v) acertos++; else erros++;
+  });
+  return {acertos, erros, mandante, total: acertos + erros};
+}
+
+function sequencias(){
+  let atual = 0, melhor = 0, ruim = 0, piorRuim = 0;
+  decididos().forEach(j => {
+    if(palpites[j.id] === vencedor(j)){ atual++; ruim = 0; melhor = Math.max(melhor, atual); }
+    else { ruim++; atual = 0; piorRuim = Math.max(piorRuim, ruim); }
+  });
+  return {atual, melhor, piorRuim};
+}
+
+function porTime(){
+  return Object.keys(TIMES).map(sigla => {
+    const seus = decididos().filter(j => j.casa === sigla || j.fora === sigla);
+    const b = balanco(seus);
+    const apostados = decididos().filter(j => (palpites[j.id] === 1 ? j.casa : j.fora) === sigla);
+    const ba = balanco(apostados);
+    return {
+      sigla, nome: TIMES[sigla][1],
+      jogos: jogos.filter(j => j.casa === sigla || j.fora === sigla).length,
+      avaliados: b.total, acertos: b.acertos,
+      aproveitamento: b.total ? b.acertos / b.total : -1,
+      apostas: ba.total, acertosApostando: ba.acertos,
+      aproveitandoAposta: ba.total ? ba.acertos / ba.total : -1
+    };
+  });
+}
+
+// ------------------------------- telas -------------------------------------
+function montaMarca(){
+  const b = balanco(decididos());
+  const alvo = document.getElementById('marca');
+  if(!b.total){ alvo.innerHTML = '<small>nenhum jogo decidido ainda</small>'; extras = ''; return; }
+  alvo.innerHTML = b.acertos + '<small>de ' + b.total + ' · ' + pct(b.acertos, b.total) + '</small>';
+  const s = sequencias();
+  extras = 'Sempre no mandante daria <b>' + pct(b.mandante, b.total) + '</b>' +
+           (s.atual > 1 ? ' · <b>' + s.atual + '</b> acertos seguidos' : '');
 }
 
 function montaSemanas(){
   const nav = document.getElementById('semanas');
+  nav.hidden = visao !== 'rodadas';
+  if(nav.hidden){ nav.innerHTML = ''; return; }
   nav.innerHTML = '';
   for(let s = 1; s <= 18; s++){
     const b = document.createElement('button');
     b.textContent = s;
     b.setAttribute('aria-current', s === semanaAtiva ? 'true' : 'false');
     b.setAttribute('aria-label', 'Semana ' + s);
-    b.onclick = () => { semanaAtiva = s; montaSemanas(); montaLista(); };
+    b.onclick = () => { semanaAtiva = s; desenha(); };
     nav.appendChild(b);
   }
 }
 
 function montaTira(){
   const tira = document.getElementById('tira');
-  const daSemana = jogos.filter(j => j.semana === semanaAtiva);
-  const feitos = daSemana.filter(j => palpites[j.id]).length;
-  let acertos = 0, erros = 0;
-  daSemana.forEach(j => {
-    const v = vencedor(j), p = palpites[j.id];
-    if(!p || v === null || v === 0) return;
-    if(p === v) acertos++; else erros++;
-  });
-  tira.hidden = false;
-  tira.innerHTML = '<span>Semana ' + semanaAtiva + ' · <b>' + feitos + '</b> de ' + daSemana.length + ' palpites' +
-    (acertos + erros ? ' · <b>' + acertos + '</b> acerto' + (acertos === 1 ? '' : 's') +
-      ' e <b>' + erros + '</b> erro' + (erros === 1 ? '' : 's') : '') + '</span>' +
-    (extras ? '<span>' + extras + '</span>' : '');
-}
-
-function montaMarca(){
-  let acertos = 0, erros = 0, mandante = 0, seq = 0;
-  jogos.forEach(j => {
-    const v = vencedor(j), p = palpites[j.id];
-    if(!p || v === null || v === 0) return;
-    if(v === 1) mandante++;
-    if(p === v){ acertos++; seq++; } else { erros++; seq = 0; }
-  });
-  const total = acertos + erros;
-  const alvo = document.getElementById('marca');
-  if(!total){
-    alvo.innerHTML = '<small>nenhum jogo decidido ainda</small>';
+  if(visao !== 'rodadas'){
+    tira.hidden = !extras;
+    tira.innerHTML = extras ? '<span>' + extras + '</span>' : '';
     return;
   }
-  const pct = (acertos / total * 100).toFixed(1).replace('.', ',');
-  alvo.innerHTML = acertos + '<small>de ' + total + ' · ' + pct + '%</small>';
-  const pctCasa = (mandante / total * 100).toFixed(1).replace('.', ',');
-  extras = 'Sempre no mandante daria <b>' + pctCasa + '%</b>' +
-           (seq > 1 ? ' · <b>' + seq + '</b> acertos seguidos' : '');
-}
-
-function pinta(botao, sigla, escolhido){
-  if(escolhido){
-    const cor = CORES[sigla] || '#3A4C5A';
-    botao.style.background = cor;
-    botao.style.color = textoSobre(cor);
-    botao.style.boxShadow = 'inset 0 0 0 2px ' + clareia(cor, luz(cor) < .045 ? .45 : .25);
-  }else{
-    botao.style.background = 'transparent';
-    botao.style.color = '';
-    botao.style.boxShadow = '';
-  }
+  const daSemana = jogos.filter(j => j.semana === semanaAtiva);
+  const feitos = daSemana.filter(j => palpites[j.id]).length;
+  const b = balanco(daSemana.filter(j => palpites[j.id] && ![null,0].includes(vencedor(j))));
+  tira.hidden = false;
+  tira.innerHTML = '<span>Semana ' + semanaAtiva + ' · <b>' + feitos + '</b> de ' + daSemana.length + ' palpites' +
+    (b.total ? ' · <b>' + b.acertos + '</b> acerto' + (b.acertos === 1 ? '' : 's') +
+               ' e <b>' + b.erros + '</b> erro' + (b.erros === 1 ? '' : 's') : '') + '</span>' +
+    (extras ? '<span>' + extras + '</span>' : '');
 }
 
 function ladoDoJogo(jogo, codigo){
@@ -345,33 +398,34 @@ function ladoDoJogo(jogo, codigo){
                 '</span><span class="papel">' + (escolhido ? 'seu palpite' : papel) + '</span>';
   b.setAttribute('aria-label', nome + ', ' + papel);
   b.setAttribute('aria-pressed', escolhido ? 'true' : 'false');
-  pinta(b, sigla, escolhido);
+  if(escolhido){
+    const cor = CORES[sigla] || '#3A4C5A';
+    b.style.background = cor;
+    b.style.color = textoSobre(cor);
+    b.style.boxShadow = 'inset 0 0 0 2px ' + clareia(cor, luz(cor) < .045 ? .45 : .25);
+  }
   if(vencedor(jogo) === codigo) b.classList.add('venceu');
   b.onclick = async () => {
     if(palpites[jogo.id] === codigo) delete palpites[jogo.id];
     else palpites[jogo.id] = codigo;
     await cofre.gravar(palpites);
-    montaMarca(); montaTira(); montaLista();
+    desenha();
   };
   return b;
 }
 
-function montaLista(){
-  const alvo = document.getElementById('lista');
+function telaRodadas(palco){
   const daSemana = jogos.filter(j => j.semana === semanaAtiva);
-  alvo.innerHTML = '';
   if(!daSemana.length){
-    alvo.innerHTML = '<p class="aviso"><b>Sem jogos nesta rodada</b>A tabela ainda não trouxe os confrontos.</p>';
+    palco.innerHTML = '<p class="aviso"><b>Sem jogos nesta rodada</b>A tabela ainda não trouxe os confrontos.</p>';
     return;
   }
   daSemana.forEach(jogo => {
     const art = document.createElement('article');
     art.className = 'jogo';
-
     const topo = document.createElement('div');
     topo.className = 'quando';
-    const sede = jogo.neutro ? '<em>' + jogo.estadio + '</em>' : '';
-    topo.innerHTML = '<span>' + rotuloData(jogo) + '</span>' + sede;
+    topo.innerHTML = '<span>' + rotuloData(jogo) + '</span>' + (jogo.neutro ? '<em>' + jogo.estadio + '</em>' : '');
     art.appendChild(topo);
 
     const duelo = document.createElement('div');
@@ -391,31 +445,213 @@ function montaLista(){
       fecho.innerHTML = '<span class="placar">' + jogo.ptsFora + ' – ' + jogo.ptsCasa + '</span>' + veredito;
       art.appendChild(fecho);
     }
-    alvo.appendChild(art);
+    palco.appendChild(art);
   });
 }
 
+function cartao(valor, rotulo, destaque){
+  return '<div class="cartao' + (destaque ? ' destaque' : '') + '"><b>' + valor + '</b><span>' + rotulo + '</span></div>';
+}
+
+function barra(rotulo, acertos, total){
+  const p = total ? acertos / total : 0;
+  return '<div class="barra"><div><div class="rotulo">' + rotulo +
+         ' <small>' + (total ? acertos + ' de ' + total : 'sem jogos decididos') + '</small></div>' +
+         '<div class="trilho"><div class="cheio" style="width:' + (p * 100).toFixed(1) + '%"></div></div></div>' +
+         '<div class="valor">' + (total ? pct(acertos, total) : '—') + '</div></div>';
+}
+
+function grafico(){
+  const L = 26, T = 8, larg = 360, alt = 132, chao = alt - 18;
+  const semanas = [];
+  let teto = 1;
+  for(let s = 1; s <= 18; s++){
+    const b = balanco(decididos().filter(j => j.semana === s));
+    semanas.push(b);
+    teto = Math.max(teto, b.total);
+  }
+  const passo = (larg - L - 6) / 18;
+  let svg = '<svg viewBox="0 0 ' + larg + ' ' + alt + '" width="100%" role="img" ' +
+            'aria-label="Acertos e erros em cada rodada"><g font-size="8" fill="#93A6B4" font-family="Barlow">';
+  [0, teto].forEach(v => {
+    const y = chao - (v / teto) * (chao - T);
+    svg += '<line x1="' + L + '" y1="' + y + '" x2="' + larg + '" y2="' + y + '" stroke="#3A4C5A" stroke-width="1"/>' +
+           '<text x="' + (L - 5) + '" y="' + (y + 3) + '" text-anchor="end">' + v + '</text>';
+  });
+  semanas.forEach((b, i) => {
+    const x = L + i * passo + passo * .18;
+    const w = passo * .64;
+    const hA = (b.acertos / teto) * (chao - T);
+    const hE = (b.erros / teto) * (chao - T);
+    if(b.erros) svg += '<rect x="' + x + '" y="' + (chao - hA - hE) + '" width="' + w + '" height="' + hE + '" fill="#D8544C"/>';
+    if(b.acertos) svg += '<rect x="' + x + '" y="' + (chao - hA) + '" width="' + w + '" height="' + hA + '" fill="#4CAF6D"/>';
+    svg += '<text x="' + (x + w / 2) + '" y="' + (alt - 5) + '" text-anchor="middle">' + (i + 1) + '</text>';
+  });
+  return svg + '</g></svg>';
+}
+
+function telaTemporada(palco){
+  const lista = decididos();
+  const b = balanco(lista);
+  const s = sequencias();
+  if(!b.total){
+    palco.innerHTML = '<p class="aviso"><b>Ainda não há o que medir</b>' +
+      'As estatísticas aparecem quando o primeiro jogo com palpite seu terminar. ' +
+      'Vá em Rodadas e deixe a semana 1 preenchida.</p>';
+    return;
+  }
+  const feitos = jogos.filter(j => palpites[j.id]).length;
+  const dif = (b.acertos - b.mandante) / b.total * 100;
+
+  let html = '<div class="cartoes">' +
+    cartao(pct(b.acertos, b.total), 'seu aproveitamento', true) +
+    cartao(feitos + ' de 272', 'palpites lançados') +
+    cartao(pct(b.mandante, b.total), 'se apostasse sempre no mandante') +
+    cartao((dif >= 0 ? '+' : '') + dif.toFixed(1).replace('.', ',') + ' p.p.', 'sua diferença para esse chute') +
+    cartao(s.melhor, 'maior sequência de acertos') +
+    cartao(s.atual, 'sequência atual') +
+    '</div>';
+
+  html += '<h2>Cada rodada</h2><p class="nota">Verde é acerto, vermelho é erro.</p>' + grafico();
+
+  html += '<h2>Por tipo de jogo</h2><p class="nota">Manhã e feriados junta os jogos na Europa e no México com Thanksgiving, Black Friday e Natal.</p>';
+  ['Primetime','Domingo à tarde','Manhã e feriados'].forEach(t => {
+    const c = balanco(lista.filter(j => j.tipo === t));
+    html += barra(t, c.acertos, c.total);
+  });
+
+  html += '<h2>Por confronto</h2>';
+  [['AFC contra AFC', j => j.confronto === 'AFC'],
+   ['NFC contra NFC', j => j.confronto === 'NFC'],
+   ['Interconferência', j => j.confronto === 'Interconferência'],
+   ['Jogos de divisão', j => j.divisao],
+   ['Fora de divisão', j => !j.divisao]].forEach(([rot, filtro]) => {
+    const c = balanco(lista.filter(filtro));
+    html += barra(rot, c.acertos, c.total);
+  });
+  palco.innerHTML = html;
+}
+
+function telaTimes(palco){
+  const dados = porTime();
+  if(!decididos().length){
+    palco.innerHTML = '<p class="aviso"><b>Nada por time ainda</b>' +
+      'Este ranking se enche conforme os jogos terminam.</p>';
+    return;
+  }
+  const colunas = [
+    ['nome','Time'], ['avaliados','Jogos'], ['acertos','Acertos'],
+    ['aproveitamento','Nos jogos dele'], ['apostas','Apostas'], ['aproveitandoAposta','Apostando nele']
+  ];
+  dados.sort((x, y) => {
+    const a = x[ordemTimes.coluna], b2 = y[ordemTimes.coluna];
+    if(typeof a === 'string') return ordemTimes.desc ? b2.localeCompare(a) : a.localeCompare(b2);
+    return ordemTimes.desc ? b2 - a : a - b2;
+  });
+  let html = '<p class="nota">Toque num cabeçalho para reordenar. "Nos jogos dele" conta todo jogo do time, ' +
+             'apostando nele ou contra.</p><table><thead><tr>';
+  colunas.forEach(([chave, rot]) => {
+    const ativo = ordemTimes.coluna === chave;
+    html += '<th tabindex="0" data-col="' + chave + '"' +
+            (ativo ? ' aria-sort="' + (ordemTimes.desc ? 'descending' : 'ascending') + '"' : '') +
+            '>' + rot + '</th>';
+  });
+  html += '</tr></thead><tbody>';
+  dados.forEach(t => {
+    html += '<tr><td><span class="naipe" style="background:' + CORES[t.sigla] + '"></span>' + t.nome + '</td>' +
+      '<td>' + t.avaliados + '</td><td>' + t.acertos + '</td>' +
+      '<td>' + (t.aproveitamento < 0 ? '—' : pct(t.acertos, t.avaliados)) + '</td>' +
+      '<td>' + t.apostas + '</td>' +
+      '<td>' + (t.aproveitandoAposta < 0 ? '—' : pct(t.acertosApostando, t.apostas)) + '</td></tr>';
+  });
+  palco.innerHTML = html + '</tbody></table>';
+  palco.querySelectorAll('th').forEach(th => {
+    const troca = () => {
+      const col = th.dataset.col;
+      if(ordemTimes.coluna === col) ordemTimes.desc = !ordemTimes.desc;
+      else ordemTimes = {coluna: col, desc: col !== 'nome'};
+      desenha();
+    };
+    th.onclick = troca;
+    th.onkeydown = e => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); troca(); } };
+  });
+}
+
+function desenha(){
+  const palco = document.getElementById('palco');
+  palco.innerHTML = '';
+  montaMarca();
+  montaSemanas();
+  montaTira();
+  ['rodadas','temporada','times'].forEach(v => {
+    document.getElementById('aba-' + v).setAttribute('aria-selected', v === visao ? 'true' : 'false');
+  });
+  if(visao === 'rodadas') telaRodadas(palco);
+  else if(visao === 'temporada') telaTemporada(palco);
+  else telaTimes(palco);
+}
+
+function semanaCorrente(){
+  const agora = Date.now();
+  const futuros = jogos.filter(j => { const d = quando(j); return d && d.getTime() + 4*3600e3 > agora; });
+  return futuros.length ? futuros[0].semana : 18;
+}
+
+// ------------------------------- entrada e saída ---------------------------
+function salvarArquivo(){
+  const conteudo = JSON.stringify({temporada: 2026, salvoEm: new Date().toISOString(), palpites}, null, 2);
+  const url = URL.createObjectURL(new Blob([conteudo], {type: 'application/json'}));
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'palpites-nfl-2026.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function restaurarArquivo(arquivo){
+  const leitor = new FileReader();
+  leitor.onload = async () => {
+    try{
+      const dados = JSON.parse(leitor.result);
+      const vindos = dados.palpites || dados;
+      let contados = 0;
+      Object.keys(vindos).forEach(id => {
+        if(vindos[id] === 1 || vindos[id] === 2){ palpites[id] = vindos[id]; contados++; }
+      });
+      await cofre.gravar(palpites);
+      desenha();
+      document.getElementById('atualizado').textContent = contados + ' palpites restaurados';
+    }catch(e){
+      document.getElementById('atualizado').textContent = 'arquivo não reconhecido';
+    }
+  };
+  leitor.readAsText(arquivo);
+}
+
 async function carregar(){
-  const alvo = document.getElementById('lista');
+  const palco = document.getElementById('palco');
   try{
-    const r = await fetch(FONTE + '?t=' + Date.now());
-    if(!r.ok) throw new Error(r.status);
-    jogos = leCsv(await r.text());
-    if(!jogos.length) throw new Error('tabela vazia');
+    jogos = await buscarJogos();
     palpites = await cofre.ler() || {};
     if(!semanaAtiva) semanaAtiva = semanaCorrente();
-    montaSemanas(); montaMarca(); montaTira(); montaLista();
+    desenha();
     document.getElementById('atualizado').textContent =
-      'Tabela lida às ' + new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+      'Jogos lidos às ' + new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
   }catch(e){
-    alvo.innerHTML = '<p class="aviso"><b>Não deu para ler a tabela</b>' +
-      'A busca dos jogos falhou (' + e.message + '). Se você abriu esta página dentro de outro aplicativo, ' +
-      'salve o arquivo e abra direto no navegador — a conexão externa costuma ser bloqueada em pré-visualizações.</p>';
+    palco.innerHTML = '<p class="aviso"><b>Não deu para ler a tabela</b>' +
+      'A busca dos jogos falhou: ' + e.message + '. Se você abriu esta página dentro de outro aplicativo, ' +
+      'abra direto no navegador — pré-visualizações costumam bloquear conexão externa.</p>';
     document.getElementById('atualizado').textContent = 'sem conexão com a fonte';
   }
 }
 
 document.getElementById('recarregar').onclick = carregar;
+document.getElementById('exportar').onclick = salvarArquivo;
+document.getElementById('importar').onclick = () => document.getElementById('arquivo').click();
+document.getElementById('arquivo').onchange = e => { if(e.target.files[0]) restaurarArquivo(e.target.files[0]); };
+['rodadas','temporada','times'].forEach(v => {
+  document.getElementById('aba-' + v).onclick = () => { visao = v; desenha(); };
+});
 carregar();
 </script>
 </body>
