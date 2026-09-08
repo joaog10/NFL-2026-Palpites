@@ -155,8 +155,8 @@
     <span id="atualizado">—</span>
     <span>
       <button class="acao" id="recarregar">Atualizar resultados</button>
-      <button class="acao" id="exportar">Salvar palpites</button>
-      <button class="acao" id="importar">Restaurar</button>
+      <button class="acao" id="exportar">Baixar cópia</button>
+      <button class="acao" id="importar">Restaurar cópia</button>
     </span>
   </div>
   <input type="file" id="arquivo" accept="application/json" hidden>
@@ -746,8 +746,11 @@ function telaPorta(palco){
 function montaConta(){
   const barra = document.getElementById('conta');
   document.getElementById('onde').textContent = sessao
-    ? 'Seus palpites estão salvos na sua conta e acompanham você em qualquer aparelho.'
-    : 'Os palpites ficam neste navegador. Salve uma cópia de vez em quando.';
+    ? 'Cada palpite é gravado na sua conta na hora. Não precisa salvar nada.'
+    : 'Os palpites ficam neste navegador. Baixe uma cópia de vez em quando.';
+  // Os botões de arquivo só fazem sentido sem conta: com banco, o próprio banco é a cópia.
+  document.getElementById('exportar').hidden = !!sessao;
+  document.getElementById('importar').hidden = !!sessao;
   if(sessao){
     barra.hidden = false;
     barra.innerHTML = '<span>Conectado como <b>' + apelido + '</b></span>' +
