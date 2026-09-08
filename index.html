@@ -93,7 +93,9 @@
   .barra .valor{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:600;text-align:right}
   .barra small{color:var(--giz-fraco);font-size:11px}
 
-  table{width:100%;border-collapse:collapse;font-size:13px}
+  .rolagem{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{width:100%;min-width:430px;border-collapse:collapse;font-size:13px}
+  td,th{white-space:nowrap}
   th,td{padding:7px 4px;border-bottom:1px solid var(--linha);text-align:right}
   th:first-child,td:first-child{text-align:left}
   th{
@@ -541,15 +543,16 @@ function telaTimes(palco){
   }
   const colunas = [
     ['nome','Time'], ['avaliados','Jogos'], ['acertos','Acertos'],
-    ['aproveitamento','Nos jogos dele'], ['apostas','Apostas'], ['aproveitandoAposta','Apostando nele']
+    ['aproveitamento','% no time'], ['apostas','Apostas'], ['aproveitandoAposta','% apostando']
   ];
   dados.sort((x, y) => {
     const a = x[ordemTimes.coluna], b2 = y[ordemTimes.coluna];
     if(typeof a === 'string') return ordemTimes.desc ? b2.localeCompare(a) : a.localeCompare(b2);
     return ordemTimes.desc ? b2 - a : a - b2;
   });
-  let html = '<p class="nota">Toque num cabeçalho para reordenar. "Nos jogos dele" conta todo jogo do time, ' +
-             'apostando nele ou contra.</p><table><thead><tr>';
+  let html = '<p class="nota">Toque num cabeçalho para reordenar. "% no time" conta todo jogo do time, ' +
+             'apostando nele ou contra. "% apostando" só as vezes em que você o escolheu.</p>' +
+             '<div class="rolagem"><table><thead><tr>';
   colunas.forEach(([chave, rot]) => {
     const ativo = ordemTimes.coluna === chave;
     html += '<th tabindex="0" data-col="' + chave + '"' +
@@ -564,7 +567,7 @@ function telaTimes(palco){
       '<td>' + t.apostas + '</td>' +
       '<td>' + (t.aproveitandoAposta < 0 ? '—' : pct(t.acertosApostando, t.apostas)) + '</td></tr>';
   });
-  palco.innerHTML = html + '</tbody></table>';
+  palco.innerHTML = html + '</tbody></table></div>';
   palco.querySelectorAll('th').forEach(th => {
     const troca = () => {
       const col = th.dataset.col;
@@ -635,8 +638,10 @@ async function carregar(){
     palpites = await cofre.ler() || {};
     if(!semanaAtiva) semanaAtiva = semanaCorrente();
     desenha();
+    const decididosAgora = jogos.filter(j => vencedor(j) !== null).length;
     document.getElementById('atualizado').textContent =
-      'Jogos lidos às ' + new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+      jogos.length + ' jogos na tabela, ' + decididosAgora + ' com placar · ' +
+      new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
   }catch(e){
     palco.innerHTML = '<p class="aviso"><b>Não deu para ler a tabela</b>' +
       'A busca dos jogos falhou: ' + e.message + '. Se você abriu esta página dentro de outro aplicativo, ' +
