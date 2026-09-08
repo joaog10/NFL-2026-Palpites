@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
     --arquibancada:#1B2733;
@@ -20,6 +21,7 @@
     --raio:3px;
   }
   *{box-sizing:border-box}
+  [hidden]{display:none!important}
   html,body{margin:0;padding:0}
   body{
     background:var(--arquibancada);color:var(--giz);
@@ -105,6 +107,22 @@
   th[aria-sort]{color:var(--bandeira)}
   .naipe{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:7px;vertical-align:baseline}
 
+  .conta{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:12px;color:var(--giz-fraco);padding:10px 0 0}
+  .conta b{color:var(--giz);font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:600}
+  .porta{background:var(--bancada);border-radius:var(--raio);padding:20px 18px;margin-top:20px;max-width:380px}
+  .porta h2{margin:0 0 4px}
+  .porta label{display:block;font-size:12px;color:var(--giz-fraco);margin:12px 0 4px}
+  .porta input{
+    width:100%;padding:10px 11px;background:var(--arquibancada);color:var(--giz);
+    border:1px solid var(--linha);border-radius:var(--raio);font-family:inherit;font-size:15px;
+  }
+  .porta .acao{margin-top:16px;padding:10px 16px}
+  .porta .acao.cheia{background:var(--bandeira);border-color:var(--bandeira);color:#1B2733;font-weight:600}
+  .alternar{background:none;border:0;color:var(--bandeira);font:inherit;font-size:13px;cursor:pointer;padding:0;text-decoration:underline}
+  .recado{font-size:13px;margin-top:12px;min-height:18px}
+  .recado.ruim{color:var(--erro)}
+  .recado.bom{color:var(--acerto)}
+  tr.voce td{background:rgba(245,197,24,.10)}
   .rodape{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:center;padding-top:20px;font-size:12px;color:var(--giz-fraco)}
   .acao{background:transparent;border:1px solid var(--linha);border-radius:var(--raio);color:var(--giz);padding:7px 13px;font-family:inherit;font-size:13px;cursor:pointer}
   .acao:hover{border-color:var(--bandeira)}
@@ -125,8 +143,10 @@
     <button role="tab" id="aba-rodadas" aria-selected="true">Rodadas</button>
     <button role="tab" id="aba-temporada" aria-selected="false">Temporada</button>
     <button role="tab" id="aba-times" aria-selected="false">Times</button>
+    <button role="tab" id="aba-ranking" aria-selected="false">Ranking</button>
   </div>
 
+  <div class="conta" id="conta" hidden></div>
   <nav class="semanas" id="semanas" aria-label="Rodadas"></nav>
   <div class="tira" id="tira" hidden></div>
   <main id="palco"><p class="aviso">Buscando a tabela de jogos…</p></main>
@@ -140,7 +160,7 @@
     </span>
   </div>
   <input type="file" id="arquivo" accept="application/json" hidden>
-  <p class="rodape" style="padding-top:6px">Os palpites ficam neste navegador. Salve uma cópia de vez em quando.</p>
+  <p class="rodape" style="padding-top:6px" id="onde">Os palpites ficam neste navegador. Salve uma cópia de vez em quando.</p>
 </div>
 
 <script>
@@ -158,7 +178,17 @@ async function buscarJogos(){
   return lista;
 }
 
+const SUPABASE_URL = 'https://yeildveogejypkyghcvm.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_NYBcCp3lC5kA5bDP4c_5Hw_hvrd939d';
 const CHAVE = 'bolao-nfl-2026';
+
+let cliente = null;
+function nuvem(){
+  if(cliente) return cliente;
+  if(!window.supabase) return null;
+  cliente = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  return cliente;
+}
 
 const CORES = {
   ARI:'#97233F', ATL:'#A71930', BAL:'#241773', BUF:'#00338D', CAR:'#0085CA',
@@ -184,7 +214,7 @@ const TIMES = {
 };
 const AFC = ['BAL','BUF','CIN','CLE','DEN','HOU','IND','JAX','KC','LAC','LV','MIA','NE','NYJ','PIT','TEN'];
 
-const cofre = {
+const local = {
   async ler(){
     try{ if(window.storage){ const r = await window.storage.get(CHAVE); if(r && r.value) return JSON.parse(r.value); } }catch(e){}
     try{ const t = localStorage.getItem(CHAVE); return t ? JSON.parse(t) : {}; }catch(e){ return {}; }
@@ -197,6 +227,7 @@ const cofre = {
 };
 
 let jogos = [], palpites = {}, semanaAtiva = 0, visao = 'rodadas', extras = '';
+let sessao = null, apelido = '', modoLocal = false, telaEntrar = true, recado = '', rankingBruto = null;
 let ordemTimes = {coluna:'aproveitamento', desc:true};
 
 // ------------------------------- leitura -----------------------------------
@@ -278,6 +309,50 @@ function vencedor(jogo){
   if(jogo.ptsFora === null || jogo.ptsCasa === null) return null;
   if(jogo.ptsCasa === jogo.ptsFora) return 0;
   return jogo.ptsCasa > jogo.ptsFora ? 1 : 2;
+}
+
+// Um palpite só: vai para o banco quando há sessão, senão fica no navegador.
+async function gravaPalpite(jogoId, escolha){
+  if(!sessao){ await local.gravar(palpites); return; }
+  const c = nuvem();
+  try{
+    const r = escolha
+      ? await c.from('palpites').upsert(
+          {usuario: sessao.user.id, jogo: jogoId, escolha, atualizado_em: new Date().toISOString()},
+          {onConflict: 'usuario,jogo'})
+      : await c.from('palpites').delete().eq('usuario', sessao.user.id).eq('jogo', jogoId);
+    if(r.error) throw r.error;
+    aviso('');
+  }catch(e){
+    aviso('não consegui salvar no banco: ' + e.message, true);
+  }
+}
+
+async function baixaPalpites(){
+  if(!sessao) return await local.ler() || {};
+  const {data, error} = await nuvem().from('palpites').select('jogo,escolha').eq('usuario', sessao.user.id);
+  if(error) throw error;
+  const mapa = {};
+  data.forEach(r => { mapa[r.jogo] = r.escolha; });
+  return mapa;
+}
+
+// Na primeira entrada, o que estava só no navegador sobe para a conta.
+async function sobePendentes(daNuvem){
+  const locais = await local.ler() || {};
+  const faltando = Object.keys(locais).filter(id => !daNuvem[id]);
+  if(!faltando.length) return 0;
+  const linhas = faltando.map(id => ({usuario: sessao.user.id, jogo: id, escolha: locais[id]}));
+  const {error} = await nuvem().from('palpites').upsert(linhas, {onConflict: 'usuario,jogo'});
+  if(error) return 0;
+  faltando.forEach(id => { daNuvem[id] = locais[id]; });
+  return faltando.length;
+}
+
+function aviso(texto, ruim){
+  recado = texto;
+  const alvo = document.getElementById('atualizado');
+  if(texto) alvo.innerHTML = '<span style="color:' + (ruim ? 'var(--erro)' : 'var(--acerto)') + '">' + texto + '</span>';
 }
 
 function luz(hex){
@@ -408,10 +483,12 @@ function ladoDoJogo(jogo, codigo){
   }
   if(vencedor(jogo) === codigo) b.classList.add('venceu');
   b.onclick = async () => {
-    if(palpites[jogo.id] === codigo) delete palpites[jogo.id];
+    const tirando = palpites[jogo.id] === codigo;
+    if(tirando) delete palpites[jogo.id];
     else palpites[jogo.id] = codigo;
-    await cofre.gravar(palpites);
     desenha();
+    await gravaPalpite(jogo.id, tirando ? null : codigo);
+    rankingBruto = null;
   };
   return b;
 }
@@ -580,18 +657,188 @@ function telaTimes(palco){
   });
 }
 
+// ------------------------------- conta -------------------------------------
+async function entrar(email, senha){
+  const c = nuvem();
+  if(!c) return aviso('a biblioteca do banco não carregou', true);
+  const {data, error} = await c.auth.signInWithPassword({email, password: senha});
+  if(error) return aviso(traduz(error.message), true);
+  sessao = data.session;
+  await depoisDeEntrar();
+}
+
+async function criarConta(email, senha, nome){
+  const c = nuvem();
+  if(!c) return aviso('a biblioteca do banco não carregou', true);
+  const {data, error} = await c.auth.signUp({email, password: senha});
+  if(error) return aviso(traduz(error.message), true);
+  if(!data.session) return aviso('conta criada. confirme o e-mail e entre.', false);
+  sessao = data.session;
+  const r = await c.from('perfis').insert({id: sessao.user.id, apelido: nome});
+  if(r.error) aviso('conta criada, mas o apelido não salvou: ' + r.error.message, true);
+  await depoisDeEntrar();
+}
+
+async function sair(){
+  await nuvem().auth.signOut();
+  sessao = null; apelido = ''; rankingBruto = null;
+  palpites = await local.ler() || {};
+  desenha();
+}
+
+function traduz(msg){
+  const m = (msg || '').toLowerCase();
+  if(m.includes('invalid login')) return 'e-mail ou senha não conferem';
+  if(m.includes('already registered')) return 'esse e-mail já tem conta, use Entrar';
+  if(m.includes('at least')) return 'a senha precisa de pelo menos 6 caracteres';
+  if(m.includes('email')) return 'e-mail inválido';
+  return msg;
+}
+
+async function depoisDeEntrar(){
+  const c = nuvem();
+  const {data} = await c.from('perfis').select('apelido').eq('id', sessao.user.id).maybeSingle();
+  apelido = data ? data.apelido : (sessao.user.email || '').split('@')[0];
+  if(!data) await c.from('perfis').insert({id: sessao.user.id, apelido});
+  palpites = await baixaPalpites();
+  const subiram = await sobePendentes(palpites);
+  rankingBruto = null;
+  desenha();
+  aviso(subiram ? subiram + ' palpites deste navegador foram para a sua conta' : 'conectado como ' + apelido);
+}
+
+function telaPorta(palco){
+  const entrando = telaEntrar;
+  palco.innerHTML =
+    '<div class="porta"><h2>' + (entrando ? 'Entrar' : 'Criar conta') + '</h2>' +
+    '<p class="nota">Sua conta guarda os palpites no servidor: dá pra palpitar no celular e conferir no computador.</p>' +
+    (entrando ? '' : '<label for="ap">Apelido no bolão</label><input id="ap" autocomplete="nickname">') +
+    '<label for="em">E-mail</label><input id="em" type="email" autocomplete="email">' +
+    '<label for="se">Senha</label><input id="se" type="password" autocomplete="' + (entrando ? 'current-password' : 'new-password') + '">' +
+    '<div><button class="acao cheia" id="vai">' + (entrando ? 'Entrar' : 'Criar conta') + '</button></div>' +
+    '<p class="recado" id="recado"></p>' +
+    '<p class="nota">' + (entrando ? 'Ainda não tem conta? ' : 'Já tem conta? ') +
+    '<button class="alternar" id="troca">' + (entrando ? 'criar uma' : 'entrar') + '</button></p>' +
+    '<p class="nota"><button class="alternar" id="semconta">usar só neste navegador</button></p></div>';
+
+  const dizer = (t, ruim) => {
+    const r = document.getElementById('recado');
+    r.textContent = t; r.className = 'recado ' + (ruim ? 'ruim' : 'bom');
+  };
+  document.getElementById('vai').onclick = async () => {
+    const em = document.getElementById('em').value.trim();
+    const se = document.getElementById('se').value;
+    const ap = entrando ? '' : (document.getElementById('ap').value.trim() || em.split('@')[0]);
+    if(!em || !se) return dizer('preencha e-mail e senha', true);
+    dizer('conectando…');
+    const antes = recado;
+    if(entrando) await entrar(em, se); else await criarConta(em, se, ap);
+    if(!sessao) dizer(recado === antes ? 'não deu certo' : recado, true);
+  };
+  document.getElementById('troca').onclick = () => { telaEntrar = !telaEntrar; desenha(); };
+  document.getElementById('semconta').onclick = async () => {
+    modoLocal = true;
+    palpites = await local.ler() || {};
+    desenha();
+  };
+}
+
+function montaConta(){
+  const barra = document.getElementById('conta');
+  document.getElementById('onde').textContent = sessao
+    ? 'Seus palpites estão salvos na sua conta e acompanham você em qualquer aparelho.'
+    : 'Os palpites ficam neste navegador. Salve uma cópia de vez em quando.';
+  if(sessao){
+    barra.hidden = false;
+    barra.innerHTML = '<span>Conectado como <b>' + apelido + '</b></span>' +
+                      '<button class="alternar" id="sair">sair</button>';
+    document.getElementById('sair').onclick = sair;
+  }else if(modoLocal){
+    barra.hidden = false;
+    barra.innerHTML = '<span>Sem conta: os palpites ficam só neste navegador</span>' +
+                      '<button class="alternar" id="logar">entrar</button>';
+    document.getElementById('logar').onclick = () => { modoLocal = false; desenha(); };
+  }else{
+    barra.hidden = true;
+    barra.innerHTML = '';
+  }
+}
+
+async function buscaRanking(){
+  const c = nuvem();
+  const [perfis, todos] = await Promise.all([
+    c.from('perfis').select('id,apelido'),
+    c.from('palpites').select('usuario,jogo,escolha')
+  ]);
+  if(perfis.error || todos.error) throw perfis.error || todos.error;
+  rankingBruto = {perfis: perfis.data, palpites: todos.data};
+}
+
+function telaRanking(palco){
+  if(!sessao){
+    palco.innerHTML = '<p class="aviso"><b>O ranking precisa de conta</b>' +
+      'Ele compara seus acertos com os das outras pessoas do bolão. Entre com uma conta para aparecer aqui.</p>';
+    return;
+  }
+  if(!rankingBruto){
+    palco.innerHTML = '<p class="aviso">Somando os acertos de todo mundo…</p>';
+    buscaRanking().then(() => { if(visao === 'ranking') desenha(); })
+      .catch(e => { palco.innerHTML = '<p class="aviso"><b>Não deu para montar o ranking</b>' + e.message + '</p>'; });
+    return;
+  }
+  const porJogo = {};
+  jogos.forEach(j => { porJogo[j.id] = vencedor(j); });
+  const contas = {};
+  rankingBruto.perfis.forEach(p => { contas[p.id] = {apelido: p.apelido, acertos: 0, erros: 0, palpites: 0}; });
+  rankingBruto.palpites.forEach(r => {
+    const c = contas[r.usuario];
+    if(!c) return;
+    c.palpites++;
+    const v = porJogo[r.jogo];
+    if(v === undefined || v === null || v === 0) return;
+    if(r.escolha === v) c.acertos++; else c.erros++;
+  });
+  const linhas = Object.keys(contas).map(id => ({id, ...contas[id]}))
+    .sort((a, b) => b.acertos - a.acertos || a.erros - b.erros || a.apelido.localeCompare(b.apelido));
+  if(linhas.length < 2){
+    palco.innerHTML = '<p class="aviso"><b>Você está sozinho no bolão</b>' +
+      'Mande o endereço do site para os amigos. Assim que criarem conta, eles aparecem aqui.</p>';
+    return;
+  }
+  let html = '<p class="nota">A ordem é por número de acertos. Palpites de jogos que ainda não terminaram não contam.</p>' +
+             '<div class="rolagem"><table><thead><tr><th>Quem</th><th>Palpites</th><th>Acertos</th><th>Erros</th><th>Aproveitamento</th></tr></thead><tbody>';
+  linhas.forEach((l, i) => {
+    html += '<tr' + (l.id === sessao.user.id ? ' class="voce"' : '') + '><td>' + (i + 1) + '. ' + l.apelido + '</td>' +
+      '<td>' + l.palpites + '</td><td>' + l.acertos + '</td><td>' + l.erros + '</td>' +
+      '<td>' + (l.acertos + l.erros ? pct(l.acertos, l.acertos + l.erros) : '—') + '</td></tr>';
+  });
+  palco.innerHTML = html + '</tbody></table></div>';
+}
+
 function desenha(){
   const palco = document.getElementById('palco');
+  const abas = document.querySelector('.visoes');
   palco.innerHTML = '';
+  montaConta();
+  if(!sessao && !modoLocal){
+    abas.hidden = true;
+    document.getElementById('semanas').hidden = true;
+    document.getElementById('tira').hidden = true;
+    document.getElementById('marca').innerHTML = '<small>bolão da temporada</small>';
+    telaPorta(palco);
+    return;
+  }
+  abas.hidden = false;
   montaMarca();
   montaSemanas();
   montaTira();
-  ['rodadas','temporada','times'].forEach(v => {
+  ['rodadas','temporada','times','ranking'].forEach(v => {
     document.getElementById('aba-' + v).setAttribute('aria-selected', v === visao ? 'true' : 'false');
   });
   if(visao === 'rodadas') telaRodadas(palco);
   else if(visao === 'temporada') telaTemporada(palco);
-  else telaTimes(palco);
+  else if(visao === 'times') telaTimes(palco);
+  else telaRanking(palco);
 }
 
 function semanaCorrente(){
@@ -621,9 +868,15 @@ function restaurarArquivo(arquivo){
       Object.keys(vindos).forEach(id => {
         if(vindos[id] === 1 || vindos[id] === 2){ palpites[id] = vindos[id]; contados++; }
       });
-      await cofre.gravar(palpites);
+      if(sessao){
+        const linhas = Object.keys(palpites).map(id => ({usuario: sessao.user.id, jogo: id, escolha: palpites[id]}));
+        await nuvem().from('palpites').upsert(linhas, {onConflict: 'usuario,jogo'});
+      }else{
+        await local.gravar(palpites);
+      }
+      rankingBruto = null;
       desenha();
-      document.getElementById('atualizado').textContent = contados + ' palpites restaurados';
+      aviso(contados + ' palpites restaurados');
     }catch(e){
       document.getElementById('atualizado').textContent = 'arquivo não reconhecido';
     }
@@ -635,10 +888,18 @@ async function carregar(){
   const palco = document.getElementById('palco');
   try{
     jogos = await buscarJogos();
-    palpites = await cofre.ler() || {};
+    const c = nuvem();
+    if(c){
+      const {data} = await c.auth.getSession();
+      if(data && data.session){ sessao = data.session; }
+    }else{
+      modoLocal = true;
+    }
     if(!semanaAtiva) semanaAtiva = semanaCorrente();
-    desenha();
+    if(sessao) await depoisDeEntrar();
+    else { palpites = await local.ler() || {}; desenha(); }
     const decididosAgora = jogos.filter(j => vencedor(j) !== null).length;
+    if(recado) return;
     document.getElementById('atualizado').textContent =
       jogos.length + ' jogos na tabela, ' + decididosAgora + ' com placar · ' +
       new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
@@ -654,7 +915,7 @@ document.getElementById('recarregar').onclick = carregar;
 document.getElementById('exportar').onclick = salvarArquivo;
 document.getElementById('importar').onclick = () => document.getElementById('arquivo').click();
 document.getElementById('arquivo').onchange = e => { if(e.target.files[0]) restaurarArquivo(e.target.files[0]); };
-['rodadas','temporada','times'].forEach(v => {
+['rodadas','temporada','times','ranking'].forEach(v => {
   document.getElementById('aba-' + v).onclick = () => { visao = v; desenha(); };
 });
 carregar();
