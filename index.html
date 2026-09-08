@@ -59,6 +59,16 @@
   .jogo{padding:16px 0;border-bottom:1px solid var(--linha)}
   .quando{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12px;color:var(--giz-fraco);margin-bottom:7px}
   .quando em{font-style:normal;color:var(--bandeira)}
+  .selo{
+    display:inline-flex;align-items:center;gap:5px;padding:2px 7px;border-radius:20px;
+    font-size:11px;letter-spacing:.03em;background:var(--bancada);color:var(--giz-fraco);
+  }
+  .selo.vivo{color:#FFD9D6;background:rgba(216,84,76,.22)}
+  .selo .ponto{width:6px;height:6px;border-radius:50%;background:var(--erro);animation:pulso 1.6s infinite}
+  @keyframes pulso{0%,100%{opacity:1}50%{opacity:.25}}
+  .lado[disabled]{cursor:default}
+  .lado[disabled]:not([aria-pressed="true"]){opacity:.5}
+  .cadeado{width:11px;height:11px;vertical-align:-1px;fill:none;stroke:currentColor;stroke-width:1.8}
   .duelo{display:grid;grid-template-columns:1fr 1fr;gap:6px}
   .lado{
     position:relative;text-align:left;padding:11px 12px 10px;background:transparent;
@@ -355,6 +365,19 @@ function aviso(texto, ruim){
   if(texto) alvo.innerHTML = '<span style="color:' + (ruim ? 'var(--erro)' : 'var(--acerto)') + '">' + texto + '</span>';
 }
 
+const CADEADO = '<svg class="cadeado" viewBox="0 0 12 12" aria-hidden="true">' +
+  '<rect x="1.6" y="5.2" width="8.8" height="6" rx="1.4"/><path d="M3.7 5.2V3.6a2.3 2.3 0 0 1 4.6 0v1.6"/></svg>';
+
+// Um jogo passa a ser intocável no instante do kickoff. Depois disso só o placar muda.
+function estadoDoJogo(j){
+  const d = quando(j);
+  if(vencedor(j) !== null) return 'encerrado';
+  if(!d) return 'aberto';
+  const desdeOInicio = Date.now() - d.getTime();
+  if(desdeOInicio < 0) return 'aberto';
+  return desdeOInicio < 4 * 3600e3 ? 'ao vivo' : 'aguardando';
+}
+
 function luz(hex){
   const n = parseInt(hex.slice(1), 16);
   const [r,g,b] = [(n>>16)&255, (n>>8)&255, n&255].map(v => {
@@ -482,6 +505,10 @@ function ladoDoJogo(jogo, codigo){
     b.style.boxShadow = 'inset 0 0 0 2px ' + clareia(cor, luz(cor) < .045 ? .45 : .25);
   }
   if(vencedor(jogo) === codigo) b.classList.add('venceu');
+  if(estadoDoJogo(jogo) !== 'aberto'){
+    b.disabled = true;
+    return b;
+  }
   b.onclick = async () => {
     const tirando = palpites[jogo.id] === codigo;
     if(tirando) delete palpites[jogo.id];
@@ -504,7 +531,12 @@ function telaRodadas(palco){
     art.className = 'jogo';
     const topo = document.createElement('div');
     topo.className = 'quando';
-    topo.innerHTML = '<span>' + rotuloData(jogo) + '</span>' + (jogo.neutro ? '<em>' + jogo.estadio + '</em>' : '');
+    const estado = estadoDoJogo(jogo);
+    let selo = jogo.neutro ? '<em>' + jogo.estadio + '</em>' : '';
+    if(estado === 'ao vivo') selo = '<span class="selo vivo"><span class="ponto"></span>ao vivo</span>';
+    else if(estado === 'aguardando') selo = '<span class="selo">' + CADEADO + ' aguardando placar</span>';
+    else if(estado === 'encerrado') selo = '<span class="selo">' + CADEADO + ' encerrado</span>';
+    topo.innerHTML = '<span>' + rotuloData(jogo) + '</span>' + selo;
     art.appendChild(topo);
 
     const duelo = document.createElement('div');
@@ -514,6 +546,13 @@ function telaRodadas(palco){
     art.appendChild(duelo);
 
     const v = vencedor(jogo), p = palpites[jogo.id];
+    if(v === null && estado !== 'aberto'){
+      const espera = document.createElement('div');
+      espera.className = 'fecho';
+      espera.innerHTML = '<span class="veredito neutro">' +
+        (p ? 'palpite trancado, agora é torcer' : 'começou sem palpite seu') + '</span>';
+      art.appendChild(espera);
+    }
     if(v !== null){
       const fecho = document.createElement('div');
       fecho.className = 'fecho';
@@ -921,6 +960,28 @@ document.getElementById('arquivo').onchange = e => { if(e.target.files[0]) resta
 ['rodadas','temporada','times','ranking'].forEach(v => {
   document.getElementById('aba-' + v).onclick = () => { visao = v; desenha(); };
 });
+// A página olha o relógio sozinha: o jogo tranca no kickoff mesmo com a aba aberta,
+// e enquanto houver jogo rolando ela vai buscar o placar de cinco em cinco minutos.
+let retrato = '', ultimaBusca = Date.now();
+
+async function atualizaPlacares(){
+  try{
+    jogos = await buscarJogos();
+    rankingBruto = null;
+    desenha();
+  }catch(e){ /* rede instável não precisa assustar ninguém */ }
+}
+
+setInterval(() => {
+  if(!jogos.length) return;
+  const agora = jogos.map(estadoDoJogo).join('');
+  if(agora !== retrato){ retrato = agora; desenha(); }
+  if(jogos.some(j => estadoDoJogo(j) === 'ao vivo') && Date.now() - ultimaBusca > 300000){
+    ultimaBusca = Date.now();
+    atualizaPlacares();
+  }
+}, 30000);
+
 carregar();
 </script>
 </body>
